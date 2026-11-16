@@ -20,13 +20,13 @@ export default function Header({ onCreate, onNavigate, onAuth, onProfile, onSwit
       </div>
       
       <div className="top-right-nav">
-        {showMemoryJar && (
+        {(showMemoryJar || profile) && (
           <button
             className={`nav-link ${currentView === "jar" ? "active" : ""}`}
             onClick={() => onNavigate(currentView === "jar" ? "home" : "jar")}
           >
-            {currentView !== "jar" && <Bookmark size={15} />}
-            {currentView === "jar" ? "Unsent Wall" : "Memory Jar"}
+            <Bookmark size={15} />
+            <span className="nav-label">{currentView === "jar" ? "Unsent Wall" : "Memory Jar"}</span>
             {currentView !== "jar" && <span className="jar-badge">{savedCount}</span>}
           </button>
         )}

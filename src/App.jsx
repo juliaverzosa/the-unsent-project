@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Header from "./components/header";
 import CreateModal from "./components/create_modal";
 import PostCard from "./components/post_card";
@@ -46,6 +46,15 @@ function themeDisplayedPosts(posts) {
     previousTheme = theme_class;
     return { ...post, theme_class };
   });
+}
+
+function shufflePostIds(posts) {
+  const ids = posts.map((post) => post.id);
+  for (let index = ids.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [ids[index], ids[randomIndex]] = [ids[randomIndex], ids[index]];
+  }
+  return ids;
 }
 
 export default function App() {
@@ -274,7 +283,14 @@ export default function App() {
     }
   };
 
-  const filteredPosts = posts.filter(post => {
+  const postIdsKey = posts.map((post) => post.id).join("|");
+  const randomizedPostIds = useMemo(() => shufflePostIds(posts), [postIdsKey]);
+  const randomizedPosts = randomizedPostIds
+    .map((id) => posts.find((post) => post.id === id))
+    .filter(Boolean);
+  const postsForTab = activeTab === "For you" ? randomizedPosts : posts;
+
+  const filteredPosts = postsForTab.filter(post => {
     const matchesTab = activeTab === "For you" || activeTab === "Recent" || post.emotion?.toLowerCase() === activeTab.toLowerCase();
     const matchesSearch = post.content.toLowerCase().includes(search.toLowerCase()) ||
                           (post.subtitle && post.subtitle.toLowerCase().includes(search.toLowerCase()));
